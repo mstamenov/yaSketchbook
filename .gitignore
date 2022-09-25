@@ -1,0 +1,11 @@
+.vs/
+.vs/*
+
+yaSketchbook.Models/bin
+yaSketchbook.Models/obj
+
+yaSketchbook.Data/bin
+yaSketchbook.Data/obj
+
+yaSketchbook.MVVM/bin
+yaSketchbook.MVVM/obj
