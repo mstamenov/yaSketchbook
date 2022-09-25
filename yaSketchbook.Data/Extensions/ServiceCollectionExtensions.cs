@@ -4,7 +4,7 @@ namespace yaSketchbook.Data.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection RegisterData(this IServiceCollection services)
+        public static IServiceCollection RegisterRepositories(this IServiceCollection services)
         {
             services.AddTransient<IDrawingsRepository, DrawingsRepository>();
 
