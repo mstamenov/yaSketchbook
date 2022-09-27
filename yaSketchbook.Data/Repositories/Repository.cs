@@ -6,36 +6,37 @@ namespace yaSketchbook.Data.Repositories;
 internal abstract class Repository<T> : IRepository<T>
     where T : class, IModel, new()
 {
-    private SQLiteConnection _db;
+    private SQLiteAsyncConnection _db;
 
     public Repository()
     {
-        string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "my.db");
+        string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "my1.db");
         
-        _db = new SQLiteConnection(dbPath);
+        _db = new SQLiteAsyncConnection(dbPath);
 
-        _db.CreateTable<T>();
+        Task.Run(async () => await _db.CreateTableAsync<T>());
+        
     }
 
-    public T Add(T entity)
+    public async Task<T> AddAsync(T entity)
     {
-        _db.Insert(entity, typeof(T));
+        await _db.InsertAsync(entity, typeof(T));
 
         return entity;
     }
 
-    public void Delete(T entity)
+    public async Task DeleteAsync(T entity)
     {
-        _db.Delete(entity);
+        await _db.DeleteAsync(entity);
     }
 
-    public T Find(int id) => _db.Get<T>(id);
+    public async Task<T> FindAsync(int id) => await _db.GetAsync<T>(id);
 
-    public List<T> ToList() => _db.Table<T>().ToList();
+    public async Task<List<T>> ToListAsync() => await _db.Table<T>().ToListAsync();
 
-    public T Update(T entity)
+    public async Task<T> UpdateAsync(T entity)
     {
-        _db.Update(entity, typeof(T));
+        await _db.UpdateAsync(entity, typeof(T));
 
         return entity;
     }

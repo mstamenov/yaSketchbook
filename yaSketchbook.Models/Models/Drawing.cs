@@ -1,7 +1,7 @@
 ﻿namespace yaSketchbook.Models.Models;
 
 [Table("Drawings")]
-public class Drawing : IModel
+public partial class Drawing : IModel
 {
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
@@ -9,6 +9,8 @@ public class Drawing : IModel
     public DateTime CreateDate { get; set; }
 
     public DateTime ModifyDate { get; set; }
-
+    
     public string Name { get; set; }
+
+    public string Json { get; set; }
 }
