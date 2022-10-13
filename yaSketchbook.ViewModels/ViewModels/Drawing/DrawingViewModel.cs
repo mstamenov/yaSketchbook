@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using yaSketchbook.Data.Repositories;
@@ -9,27 +11,49 @@ namespace yaSketchbook.ViewModels;
 
 public partial class DrawingViewModel : BaseViewModel
 {
-    private readonly IDrawingsRepository _drawingsRepository;
-    private readonly int _currentId = 1;
+    private readonly IDrawingsRepository drawingsRepository;
+
+    [ObservableProperty]
+    private int maxId;
     
-    public ObservableCollection<DrawingLine> Lines { get; set; } = new();
+    [ObservableProperty]
+    ObservableCollection<IDrawingLine> lines;
 
     public DrawingViewModel(IDrawingsRepository drawingsRepository)
     {
-        this._drawingsRepository = drawingsRepository;
+        this.MaxId = 1;
+        this.Lines = new ();
+        this.drawingsRepository = drawingsRepository;
     }
     
     [RelayCommand]
-    async void DrawLineCompleted()
+    async Task DrawLineCompleted()
     {
-        /*var drawing = await _drawingsRepository.FindAsync(_currentId);
-        drawing.Json = JsonSerializer.Serialize(Lines);
-
-        await _drawingsRepository.UpdateAsync(drawing);*/
+        this.MaxId = (await this.drawingsRepository.ToListAsync()).Count;
+        await Task.FromResult(0);
     }
 
     [RelayCommand]
-    void PageAppearing()
+    async Task SaveAsync() 
     {
+        var allDrawings = await this.drawingsRepository.ToListAsync();
+        var drawing = new Drawing
+        {
+            ModifyDate = DateTime.Now,
+            CreateDate = DateTime.Now,
+            Name = $"Test {allDrawings.Count + 1}",
+            Json = JsonSerializer.Serialize(this.Lines)
+        };
+
+        await this.drawingsRepository.AddAsync(drawing);
+    }
+
+    public async Task ReloadDrawingAsync(int id)
+    {
+        var drawing = await this.drawingsRepository.FindAsync(id);
+        var savedLines = JsonSerializer.Deserialize<List<DrawingLine>>(drawing.Json);
+
+        this.Lines.Clear();
+        savedLines.ForEach(x => this.Lines.Add(x));
     }
 }
