@@ -13,15 +13,24 @@ public partial class DrawingViewModel : BaseViewModel
 {
     private readonly IDrawingsRepository drawingsRepository;
 
+    [NotifyPropertyChangedFor(nameof(IsSliderEnabled))]
     [ObservableProperty]
     private int maxId;
     
+    public bool IsSliderEnabled
+    {
+        get 
+        {
+            return this.MaxId > 0;
+        }
+    }
+
     [ObservableProperty]
     ObservableCollection<IDrawingLine> lines;
 
     public DrawingViewModel(IDrawingsRepository drawingsRepository)
     {
-        this.MaxId = 1;
+        this.MaxId = 0;
         this.Lines = new ();
         this.drawingsRepository = drawingsRepository;
     }
@@ -29,7 +38,6 @@ public partial class DrawingViewModel : BaseViewModel
     [RelayCommand]
     async Task DrawLineCompleted()
     {
-        this.MaxId = (await this.drawingsRepository.ToListAsync()).Count;
         await Task.FromResult(0);
     }
 
@@ -46,6 +54,7 @@ public partial class DrawingViewModel : BaseViewModel
         };
 
         await this.drawingsRepository.AddAsync(drawing);
+        await this.GetSavedDrawingMaxId();
     }
 
     public async Task ReloadDrawingAsync(int id)
@@ -55,5 +64,10 @@ public partial class DrawingViewModel : BaseViewModel
 
         this.Lines.Clear();
         savedLines.ForEach(x => this.Lines.Add(x));
+    }
+
+    public async Task GetSavedDrawingMaxId() 
+    {
+        this.MaxId = (await this.drawingsRepository.ToListAsync()).Count;
     }
 }

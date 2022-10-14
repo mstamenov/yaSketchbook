@@ -12,14 +12,20 @@ public partial class MainPage : BasePage<DrawingViewModel>
 		InitializeComponent();
 	}
 
-	private void Button_Clicked(object sender, EventArgs e)
-	{
+    protected async override void OnAppearing()
+    {
+        await this.BindingContext.GetSavedDrawingMaxId();
+        base.OnAppearing();
     }
 
 	private async void Slider_ValueChanged(object sender, ValueChangedEventArgs e)
 	{
-        var slider = sender as Slider;
-		await this.BindingContext.ReloadDrawingAsync((int)slider.Value);
-		
+		var slider = sender as Slider;
+		int sliderValue = (int)slider.Value;
+
+        if(sliderValue > 0)
+		{
+            await this.BindingContext.ReloadDrawingAsync(sliderValue);
+        }
     }
 }
